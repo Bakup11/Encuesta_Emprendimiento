@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Gestión de Actividades</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <form id="activitySurvey">
+            <h1>Encuesta de Gestión de Actividades</h1>
+            
+            <div class="form-group">
+                <label for="organizationProblems">1. ¿Algunas vez ha tenido problemas organizando y priorizando sus actividades o tareas?</label>
+                <select id="organizationProblems" name="organizationProblems" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                    <option value="aveces">A veces</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="managementApps">2. ¿Ha utilizado alguna vez aplicaciones de gestión de actividades?</label>
+                <select id="managementApps" name="managementApps" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="alphaTest">3. ¿Estaría dispuesto a participar en una prueba de una aplicación Alpha?</label>
+                <select id="alphaTest" name="alphaTest" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="contactSection" style="display: none;">
+                <h3>4. Información de Contacto</h3>
+                <div class="contact-fields">
+                    <div class="form-group">
+                        <label for="fullName">Nombre Completo:</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Ingrese su nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMethod">Método de Contacto:</label>
+                        <select id="contactMethod" name="contactMethod">
+                            <option value="">Seleccione un método</option>
+                            <option value="telefono">Número de Teléfono</option>
+                            <option value="correo">Correo Electrónico</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="phoneSection" style="display: none;">
+                        <label for="phoneNumber">Número de Teléfono:</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Ej: +57 300 123 4567">
+                    </div>
+                    <div class="form-group" id="emailSection" style="display: none;">
+                        <label for="emailAddress">Correo Electrónico:</label>
+                        <input type="email" id="emailAddress" name="emailAddress" placeholder="Ej: ejemplo@correo.com">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Enviar Encuesta</button>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script src="javascript.js"></script>
+</body>
+</html>
