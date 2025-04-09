@@ -28,9 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (this.value === 'si') {
             contactSection.style.display = 'block';
             fullNameInput.required = true;
+            contactMethodSelect.required = true;
         } else {
             contactSection.style.display = 'none';
             fullNameInput.required = false;
+            contactMethodSelect.required = false;
             // Resetear todos los campos de contacto
             fullNameInput.value = '';
             contactMethodSelect.value = '';
@@ -38,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
             emailInput.value = '';
             phoneSection.style.display = 'none';
             emailSection.style.display = 'none';
+            // Asegurarse de que los campos ocultos no sean requeridos
+            phoneInput.required = false;
+            emailInput.required = false;
         }
     });
 
@@ -49,22 +54,61 @@ document.addEventListener('DOMContentLoaded', () => {
         // Establecer campos como requeridos según la selección
         phoneInput.required = this.value === 'telefono';
         emailInput.required = this.value === 'correo';
+        
+        // Si cambia la selección, limpiar el campo anterior
+        if (this.value === 'telefono') {
+            emailInput.value = '';
+            emailInput.required = false;
+        } else if (this.value === 'correo') {
+            phoneInput.value = '';
+            phoneInput.required = false;
+        }
     });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Validar campos
+        // Validar campos básicos
         const organizationProblems = document.getElementById('organizationProblems').value;
         const managementApps = document.getElementById('managementApps').value;
         const alphaTest = document.getElementById('alphaTest').value;
         
-        // Datos de contacto
-        const fullName = fullNameInput.value || 'No proporcionado';
-        const contactMethod = contactMethodSelect.value || 'No seleccionado';
-        const contactInfo = contactMethod === 'telefono' 
-            ? (phoneInput.value || 'No proporcionado')
-            : (emailInput.value || 'No proporcionado');
+        // Verificar validación personalizada
+        let isValid = true;
+        
+        // Si el usuario quiere participar en la prueba alpha, validar datos de contacto
+        if (alphaTest === 'si') {
+            const contactMethod = contactMethodSelect.value;
+            
+            if (!fullNameInput.value.trim()) {
+                alert('Por favor, ingrese su nombre completo');
+                isValid = false;
+            } else if (!contactMethod) {
+                alert('Por favor, seleccione un método de contacto');
+                isValid = false;
+            } else if (contactMethod === 'telefono' && !phoneInput.value.trim()) {
+                alert('Por favor, ingrese su número de teléfono');
+                isValid = false;
+            } else if (contactMethod === 'correo' && !emailInput.value.trim()) {
+                alert('Por favor, ingrese su correo electrónico');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) return;
+        
+        // Datos de contacto (solo se usan si alphaTest es 'si')
+        const fullName = alphaTest === 'si' ? (fullNameInput.value || 'No proporcionado') : 'No aplica';
+        const contactMethod = alphaTest === 'si' ? (contactMethodSelect.value || 'No seleccionado') : 'No aplica';
+        let contactInfo = 'No aplica';
+        
+        if (alphaTest === 'si') {
+            if (contactMethod === 'telefono') {
+                contactInfo = phoneInput.value || 'No proporcionado';
+            } else if (contactMethod === 'correo') {
+                contactInfo = emailInput.value || 'No proporcionado';
+            }
+        }
 
         try {
             // Guardar en Firestore
