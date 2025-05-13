@@ -22,19 +22,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const fullNameInput = document.getElementById('fullName');
     const phoneInput = document.getElementById('phoneNumber');
     const emailInput = document.getElementById('emailAddress');
+    
+    // Elementos de la alerta personalizada
+    const customAlert = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertButton = document.getElementById('alertButton');
+
+    // Función para mostrar alerta personalizada
+    function showCustomAlert(message) {
+        alertMessage.textContent = message;
+        customAlert.classList.add('show');
+        
+        // Enfocar el botón para accesibilidad
+        setTimeout(() => {
+            alertButton.focus();
+        }, 100);
+    }
+
+    // Cerrar alerta al hacer clic en el botón
+    alertButton.addEventListener('click', () => {
+        customAlert.classList.remove('show');
+    });
 
     // Mostrar/ocultar sección de contacto
     alphaTestSelect.addEventListener('change', function() {
         if (this.value === 'si') {
             contactSection.style.display = 'block';
-            fullNameInput.required = true;
             contactMethodSelect.required = true;
         } else {
             contactSection.style.display = 'none';
-            fullNameInput.required = false;
             contactMethodSelect.required = false;
-            // Resetear todos los campos de contacto
-            fullNameInput.value = '';
+            // Resetear campos de contacto
             contactMethodSelect.value = '';
             phoneInput.value = '';
             emailInput.value = '';
@@ -69,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         // Validar campos básicos
+        const fullName = fullNameInput.value;
         const organizationProblems = document.getElementById('organizationProblems').value;
         const managementApps = document.getElementById('managementApps').value;
         const alphaTest = document.getElementById('alphaTest').value;
@@ -76,21 +95,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Verificar validación personalizada
         let isValid = true;
         
+        if (!fullName.trim()) {
+            showCustomAlert('Por favor, ingrese su nombre completo');
+            isValid = false;
+        }
+        
         // Si el usuario quiere participar en la prueba alpha, validar datos de contacto
         if (alphaTest === 'si') {
             const contactMethod = contactMethodSelect.value;
             
-            if (!fullNameInput.value.trim()) {
-                alert('Por favor, ingrese su nombre completo');
-                isValid = false;
-            } else if (!contactMethod) {
-                alert('Por favor, seleccione un método de contacto');
+            if (!contactMethod) {
+                showCustomAlert('Por favor, seleccione un método de contacto');
                 isValid = false;
             } else if (contactMethod === 'telefono' && !phoneInput.value.trim()) {
-                alert('Por favor, ingrese su número de teléfono');
+                showCustomAlert('Por favor, ingrese su número de teléfono');
                 isValid = false;
             } else if (contactMethod === 'correo' && !emailInput.value.trim()) {
-                alert('Por favor, ingrese su correo electrónico');
+                showCustomAlert('Por favor, ingrese su correo electrónico');
                 isValid = false;
             }
         }
@@ -98,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isValid) return;
         
         // Datos de contacto (solo se usan si alphaTest es 'si')
-        const fullName = alphaTest === 'si' ? (fullNameInput.value || 'No proporcionado') : 'No aplica';
         const contactMethod = alphaTest === 'si' ? (contactMethodSelect.value || 'No seleccionado') : 'No aplica';
         let contactInfo = 'No aplica';
         
@@ -113,23 +133,44 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Guardar en Firestore
             await db.collection('surveyResponses').add({
+                fullName,
                 organizationProblems,
                 managementApps,
                 alphaTest,
-                fullName,
                 contactMethod,
                 contactInfo,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert('Encuesta enviada exitosamente');
+            // Mostrar mensaje según si aceptó o no participar en la prueba alpha
+            if (alphaTest === 'si') {
+                showCustomAlert('¡Gracias por participar! Nos pondremos en contacto contigo pronto para la prueba alpha.');
+            } else {
+                showCustomAlert('¡Gracias por completar nuestra encuesta! Tu opinión es muy valiosa para nosotros.');
+            }
+            
+            // Resetear formulario
             form.reset();
             contactSection.style.display = 'none';
             phoneSection.style.display = 'none';
             emailSection.style.display = 'none';
         } catch (error) {
             console.error('Error al enviar la encuesta:', error);
-            alert('Hubo un problema al enviar la encuesta. Intente nuevamente.');
+            showCustomAlert('Hubo un problema al enviar la encuesta. Intente nuevamente.');
+        }
+    });
+    
+    // Cerrar alerta cuando se hace clic fuera de ella
+    window.addEventListener('click', (e) => {
+        if (e.target === customAlert) {
+            customAlert.classList.remove('show');
+        }
+    });
+    
+    // Permitir cerrar alerta con tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && customAlert.classList.contains('show')) {
+            customAlert.classList.remove('show');
         }
     });
 });
